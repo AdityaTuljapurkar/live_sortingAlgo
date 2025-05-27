@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bubble Sort Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        canvas {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Bubble Sort Visualization</h2>
+    <form id="arrayForm">
+        <input type="text" id="array" placeholder="Enter numbers separated by commas (e.g. 5,3,1,2)" size="50">
+        <button type="submit">Visualize Sort</button>
+    </form>
+    <canvas id="myChart" style="width:100%;max-width:800px"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+        let chart;
+
+        document.getElementById('arrayForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const input = document.getElementById('array').value;
+            const button = document.querySelector('button');
+            button.disabled = true; // Disable button during sorting
+
+            fetch(`/get-data/?array=${encodeURIComponent(input)}`)
+                .then(response => response.json())
+                .then(data => {
+                    button.disabled = false; // Re-enable after fetch
+
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    const steps = data.steps;
+                    if (!steps.length) {
+                        alert("Nothing to sort.");
+                        return;
+                    }
+
+                    let index = 0;
+
+                    // Destroy old chart if it exists
+                    if (chart) {
+                        chart.destroy();
+                    }
+
+                    chart = new Chart("myChart", {
+                        type: "bar",
+                        data: {
+                            labels: steps[0].map((_, i) => `#${i + 1}`),
+                            datasets: [{
+                                backgroundColor: "cornflowerblue",
+                                data: steps[0]
+                            }]
+                        },
+                        options: {
+                            animation: false,
+                            responsive: true,
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: "Bubble Sort Step-by-Step"
+                            },
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        precision: 0
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    const interval = setInterval(() => {
+                        index++;
+                        if (index >= steps.length) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        chart.data.datasets[0].data = steps[index];
+                        chart.update();
+                    }, 400);
+                })
+                .catch(error => {
+                    button.disabled = false;
+                    console.error('Error:', error);
+                    alert('Failed to fetch sorting steps from backend.');
+                });
+        });
+    </script>
+</body>
+</html>
