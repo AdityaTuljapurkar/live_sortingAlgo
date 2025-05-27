@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Input Example</title>
+</head>
+<body>
+    <form id="arrayForm">
+        <input type="text" name="array" id="array" placeholder="Enter array values separated by commas">
+        <button type="submit">Submit</button>
+    </form>
+
+    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script>
+        var chart; // to store the chart instance
+
+        document.getElementById('arrayForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var array = document.getElementById('array').value;
+            var array_value = array.split(',').map(Number);
+
+            var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
+            var yValues = array_value;
+            var barColors = "blue";
+
+            chart = new Chart("myChart", {
+                type: "bar",
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: yValues
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: "World Countries Data"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
